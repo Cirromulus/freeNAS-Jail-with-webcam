@@ -2,15 +2,28 @@
 This is a howto for installing a webcam streamer on a freeNAS system where streaming happens inside a jail.
 I use this to stream video to an octoprint instance.
 
+## Architecture
+Usually, everything should be installed and modified only inside a FreeNAS jail.
+However, the base FreeNAS os has per default no webcam drivers.
+The *root* modifications do not survive a reboot, but work for me.
+
 root:
 -----
 
+This enables usage of pkg on root. Decide wheter to do this on your own.
+```bash
+sed 's/enabled: yes/enabled: no/' /usr/local/etc/pkg/repos/local.conf
+sed 's/enabled: no/enabled: yes/' /usr/local/etc/pkg/repos/FreeBSD.conf
+pkg update
+```
+
+Install webcam drivers:
 ```bash
 pkg install webcamd
 pkg install cuse4bsd-kmod
 kldload cuse4bsd       #todo: somehow survive restart.
 
-echo webcamd_0_flags="-N Image-Processor-USB-2-0-PC-Cam" >> rc.conf
+echo webcamd_0_flags="-N Image-Processor-USB-2-0-PC-Cam" >> rc.conf # or however your camera is called
 echo webcamd_enable="YES" >> rc.conf
 ```
 
